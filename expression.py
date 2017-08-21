@@ -1,8 +1,8 @@
 import tokens
-from common import ExpressionError, Pri, is_number
+from common import ExpressionError, PreEval, is_number
 
 class Base:
-    priority = Pri.NONE
+    priority = PreEval.NONE
 
     can_run = False
     can_set = False
@@ -41,7 +41,7 @@ class Base:
                 return
 
             # implied multiplication
-            elif prev.priority == token.priority == tokens.Pri.NONE:
+            elif prev.priority == token.priority == tokens.PreEval.NONE:
 
                 # negative numbers actually have implied addition
                 if isinstance(token, tokens.Value)\
@@ -222,7 +222,7 @@ class ParenExpr(Bracketed):
     end = ')'
 
 class Tuple(Base):
-    priority = Pri.INVALID
+    priority = PreEval.INVALID
 
     def __init__(self):
         Base.__init__(self)
@@ -270,14 +270,14 @@ class FunctionArgs(Arguments):
     end = ')'
 
 class ListExpr(Arguments):
-    priority = Pri.NONE
+    priority = PreEval.NONE
     end = '}'
 
     def __repr__(self):
         return 'L{%s}' % (', '.join(repr(expr) for expr in self.contents))
 
 class MatrixExpr(Arguments):
-    priority = Pri.NONE
+    priority = PreEval.NONE
     end = ']'
 
     def __repr__(self):

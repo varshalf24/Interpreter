@@ -6,7 +6,7 @@ import math
 import random
 import string
 
-from common import Pri, ExecutionError, StopError, ReturnError
+from common import PreEval, ExecutionError, StopError, ReturnError
 from expression import Tuple, Expression, Arguments, ListExpr, MatrixExpr
 
 # helpers
@@ -81,7 +81,7 @@ class Parent:
     arg = None
 
     # used for evaluation order inside expressions
-    priority = Pri.INVALID
+    priority = PreEval.INVALID
 
     def absorb(self, token):
         if isinstance(token, Expression):
@@ -129,14 +129,14 @@ class StubToken(Token, Stub):
     def run(self, vm): pass
 
 class Variable(Parent):
-    priority = Pri.NONE
+    priority = PreEval.NONE
     tokens = {}
 
     def get(self, vm):
         raise NotImplementedError
 
 class Function(Parent):
-    priority = Pri.NONE
+    priority = PreEval.NONE
     tokens = {}
 
     absorbs = (Arguments,)
@@ -152,7 +152,7 @@ class Function(Parent):
 
     def __init__(self):
         if self.can_run:
-            self.priority = Pri.INVALID
+            self.priority = PreEval.INVALID
 
         Parent.__init__(self)
 
@@ -443,7 +443,7 @@ for i in xrange(10):
 
 class Stor(Token):
     token = u'→'
-    priority = Pri.SET
+    priority = PreEval.SET
 
     def run(self, vm, left, right):
         ans = vm.get(left)
@@ -473,15 +473,15 @@ class FloatOperator(Operator, Stub):
 
         return ans
 
-class AddSub(Operator, Stub): priority = Pri.ADDSUB
-class MultDiv(FloatOperator, Stub): priority = Pri.MULTDIV
-class Exponent(Operator, Stub): priority = Pri.EXPONENT
+class AddSub(Operator, Stub): priority = PreEval.ADDSUB
+class MultDiv(FloatOperator, Stub): priority = PreEval.MULTDIV
+class Exponent(Operator, Stub): priority = PreEval.EXPONENT
 class RightExponent(Exponent, Stub):
     def fill_right(self):
         return Value(None)
 
 class Bool(Operator, Stub):
-    priority = Pri.BOOL
+    priority = PreEval.BOOL
 
     @get
     def run(self, vm, left, right):
@@ -494,7 +494,7 @@ class MathExprFunction(Function, Stub):
         args = vm.get(self.arg)
         return self.call(vm, args[0])
 
-class Logic(Bool): priority = Pri.LOGIC
+class Logic(Bool): priority = PreEval.LOGIC
 
 # math
 
@@ -578,7 +578,7 @@ class CubeRoot(MathExprFunction):
             return i
 
 class SciNot(Operator):
-    priority = Pri.EXPONENT
+    priority = PreEval.EXPONENT
     token = u'ᴇ'
 
     def fill_left(self):
@@ -754,13 +754,13 @@ class atanh(MathExprFunction):
 
 class nPr(Operator):
     # TODO: nPr and nCr should support lists
-    priority = Pri.PROB
+    priority = PreEval.PROB
 
     def op(self, left, right):
         return math.factorial(left) / math.factorial((left - right))
 
 class nCr(Operator):
-    priority = Pri.PROB
+    priority = PreEval.PROB
 
     def op(self, left, right):
         return math.fact(left) / (math.fact(right) * math.fact((left - right)))

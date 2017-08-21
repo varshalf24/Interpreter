@@ -12,7 +12,7 @@ class ParseError(Error): pass
 class ExecutionError(Error): pass
 class ExpressionError(Error): pass
 
-class Pri:
+class PreEval:
     # evaluation happens in the following order:
     # skip: expressions, functions, variables
     # 1. exponents, factorials

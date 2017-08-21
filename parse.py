@@ -66,7 +66,7 @@ class Parser:
                 new = []
                 expr = None
                 for token in line:
-                    if token.priority > tokens.Pri.INVALID:
+                    if token.priority > tokens.PreEval.INVALID:
                         expr = expr or Expression()
                         expr.append(token)
                     else:
@@ -239,7 +239,7 @@ class Parser:
         return [line for line in self.post()]
 
     def add(self, token):
-        # TODO: cannot add Pri.INVALID unless there's no expr on the stack
+        # TODO: cannot add PreEval.INVALID unless there's no expr on the stack
         if self.stack:
             stack = self.stack[-1]
             stack.append(token)
